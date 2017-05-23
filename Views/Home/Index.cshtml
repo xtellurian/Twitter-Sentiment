@@ -1,0 +1,102 @@
+﻿@{ ViewData["Title"] = "Home Page"; }
+
+@section Scripts
+{
+    <script>
+        function complete()
+        {
+             var id = document.getElementById("input_id").value;
+             $("#hint").hide();
+             $("#loader").show();
+             $("#input_id").hide();
+             $("#plot").hide();
+
+             var url = "/data/tweets/" + id;
+             $.ajax({
+                dataType: "json",
+                url: url,
+                success: function(data)
+                {
+
+                    $("#loader").hide();
+                    $("#input_id").show();
+                    $("#hint").show();
+
+                    var yvals = [];
+                    data.data.forEach(function callback(val, index, array) {
+                        yvals.push(val.score)
+                        // yvals.push(val.Num)
+                       //  sentiment.push(val.AverageSentiment)
+                    });
+                    var numberArray = [];
+
+                    for(var i = 0; i < 20; i++){
+                        numberArray.push(i);
+                    }
+
+                    var data = [
+                    {
+                        x: yvals,
+                        type: 'histogram',
+                        autobinx: false, 
+                        xbins: {
+                            end: 1, 
+                            size: 0.05, 
+                            start: 0
+                        },
+                        marker: {
+                            color: numberArray,
+                            colorscale: 'Greens',
+                            cmin: 0,
+                            cmax: 20
+                        },
+                    }];
+
+                    var layout = {
+                        title: "Sampled Results", 
+                        xaxis: {
+                            title: "Sentiment",
+                            range: [0, 1]
+                        }, 
+                        yaxis: {title: "Count"}
+                    };
+
+                    
+                    $("#plot").show();
+                    Plotly.newPlot('plot', data, layout);
+                }
+                });
+        }
+       
+    </script>   
+}
+
+<div id="full container"  >
+    <div class="form-group">
+        <form class="parent" action="javascript:complete();">
+            <div class="container">
+            <div class="row">
+                <div class"col-lg-12">
+                    <span class="search"><input id="input_id" class="form-control" type="text" name="search" placeholder="Search"></span> 
+                </div>
+            </div>
+            <div class="row">
+                <div class"col-lg-12">
+                    <span id="hint" class="help-block ">Try searching for a celebrity, politician or sportsperson</span>    
+                </div>
+            </div>
+            </div>
+            
+              
+        </form>
+       
+    </div>
+    <div class=parent>
+        <div hidden id="loader" class="loader top-margin col-centered"></div>
+    </div>
+    <div class="parent">
+        <div id="plot">
+        </div>
+    </div>
+</div>
+
